@@ -16,15 +16,41 @@
 
 <script>
     const form = document.querySelector('form');
-    form.addEventListener('submit',(e)=>{
+    const emailError = document.querySelector('.email.error');
+    const passwordError = document.querySelector('.password.error');
+    
+    form.addEventListener('submit',async(e)=>{
         e.preventDefault();
+
+        // reset errors
+        emailError.textContent = '';
+        passwordError.textContent = '';
 
         // get values from form
         const email = form.email.value;
         const password = form.password.value;
+        try{
+            const res = await fetch('/signup',{
+                method: 'POST',
+                body: JSON.stringify({email,password}),
+                headers: {'Content-Type': 'application/json'},
+            });
 
-        //console.log(email,password);
-        
+            // check result what is inside it
+            const data =await res.json(); // data will be the object we send back from controller when user created(res.status's object) or error from catch statement
+            //console.log(data);
+              if(data.errors){
+                emailError.textContent = data.errors.email;
+                passwordError.textContent = data.errors.password;
+              }
+
+              if(data.user){
+                location.assign('/');
+                //console.log('data.user', data.user);
+              }
+        }catch(err){
+            console.log(err);
+        };
     });
 </script>
 <%- include('partials/footer'); -%>
